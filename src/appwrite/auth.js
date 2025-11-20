@@ -33,15 +33,21 @@ export class AuthService {
 
          
            if(userAccount) {
-            return await this.login({email, password});
-          
+            // Try to login after creation
+            try {
+                await this.login({email, password});
+                return userAccount;
+            } catch (loginError) {
+                console.log("Login failed after account creation:", loginError.message);
+                throw new Error("Account created but login failed. Please check if email verification is required.");
+            }
            }
            else{
             return null
            }
         } catch (error) {
             console.log("Appwrite service :: createAccount :: error", error);
-            return null;
+            throw error; // Re-throw to propagate to UI
         }
     }
 
