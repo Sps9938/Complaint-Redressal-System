@@ -205,30 +205,3 @@ This project is original work by the repository owner and implemented to meet NI
 4. Review `package.json` to verify dependencies and versions are deliberate choices, not a copy of another repo stub.
 5. For further verification, review issues, PRs, and the timeline of changes on GitHub.
 
-### Signed Statement (Optional)
-
-Replace the following line with your signature (name) and a short date stamp in a new commit to claim this work as original:
-
-> I, [Your Name], certify that this repository is my original work, created independently for NIT Agartala’s Online Complaint & Redressal System. — Date: YYYY-MM-DD
-
-Add this signature to the initial commit or in a new commit, and optionally provide a commit message like `Assert original work by [Your Name]` to make provenance clearer.
-
----
-
-## 🕘 Development Timeline & Milestones (Optional)
-
-You can add a short timeline of main milestones on the repo to show activity and incremental progress. Example entries:
-- 2025-11-05 — Project scaffold with Vite + React + Tailwind
-- 2025-11-07 — Implemented Appwrite authentication and reducers
-- 2025-11-10 — Finished Complaint creation & file uploads
-- 2025-11-12 — Implemented Admin dashboard and status updates
-
-Add or maintain a `CHANGELOG.md` to show the project's evolution in more detail.
-
----
-
-## ✅ Where to go next
-
-- If you want me to make a small `AUTHORS.md` signature file, add a signed commit message, or create a `CHANGELOG.md` showing development timeline, say which option to pick and I’ll create those files.
-- If you'd like a 
-
