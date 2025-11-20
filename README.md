@@ -205,3 +205,117 @@ This project is original work by the repository owner and implemented to meet NI
 4. Review `package.json` to verify dependencies and versions are deliberate choices, not a copy of another repo stub.
 5. For further verification, review issues, PRs, and the timeline of changes on GitHub.
 
+---
+
+## 🔐 Git Hygiene — Prevent accidental large commits or secrets
+
+This section provides best practices and quick commands to ensure you only push the files you mean to. It's especially useful if your repo shows a very large number of changes (e.g., 10k files) due to generated or dependency files accidentally staged.
+
+### Quick checklist before committing
+
+1. Check the status of your repo:
+```powershell
+git status --porcelain
+```
+2. Preview what will be staged with a dry-run (don't actually add anything):
+```powershell
+git add -n .   # -n (or --dry-run) shows what would be added
+```
+3. Add only specific files or directories you want to commit instead of `git add .` where possible, for example:
+```powershell
+git add src/ package.json README.md
+```
+4. Inspect staged files before committing:
+```powershell
+git status --porcelain
+git diff --cached --name-only    # lists staged file paths
+```
+
+### Optional: Add a pre-commit check to prevent large pushes
+
+If you want to run the staged-file check automatically before each commit without external tooling, you can add an npm precommit script to `package.json`:
+
+```powershell
+npm set-script precommit "powershell -File scripts/check-staged-files.ps1"
+```
+
+This will run the PowerShell staged-file check each time a commit is created (via npm). For flexible Git-managed hooks that run across all contributors, consider using `husky` to install repository hooks rather than modifying `package.json` directly.
+
+### Unstaging & selective staging
+
+- To unstage everything if you accidentally added too many files before committing:
+```powershell
+git reset  # unstages files but keeps changes in working tree
+```
+- Unstage a specific file:
+```powershell
+git reset HEAD -- path/to/file
+```
+- Stage interactively (helps pick only the changes you want):
+```powershell
+git add -p
+```
+
+### Verify tracked vs untracked files
+
+To see how many files are tracked in your repo and how many untracked files exist (useful to confirm you won't push thousands of files):
+
+```powershell
+Write-Output "Total tracked files:"; (git ls-files | Measure-Object).Count
+Write-Output "Total untracked files:"; (git ls-files --others --exclude-standard | Measure-Object).Count
+```
+
+To see which files would be included in a commit (dry run):
+
+```powershell
+git add -n .
+```
+
+### Prevent common mistakes
+
+- Ensure `node_modules`, local build outputs, and `.env` files are in `.gitignore`. This repo's `.gitignore` already contains these items, but verify they are not being tracked. Use:
+```powershell
+git ls-files node_modules | Measure-Object; git ls-files .env | Measure-Object
+```
+- If `node_modules` or other large folders are tracked accidentally, remove them from the index while preserving them locally:
+```powershell
+git rm -r --cached node_modules
+git commit -m "chore: remove node_modules from repository"
+git push
+```
+
+### Removing large or sensitive files from history (advanced)
+
+If you accidentally committed secrets or very large files and pushed them, removing them from history requires rewriting git history. The recommended tool is `git filter-repo` (or BFG as alternative). Example using `git filter-repo`:
+```powershell
+# install git-filter-repo (outside the project) and then:
+git filter-repo --path node_modules/ --invert-paths
+```
+If you have already pushed to the remote and want to clean things up, run the following **two-step** process:
+
+1) Remove the files from the current tree and push a commit that removes them:
+```powershell
+git rm -r --cached node_modules
+git commit -m "chore: remove node_modules from repository"
+git push
+```
+2) If files exist in the commit history (past commits) and you need them removed from the remote, rewrite history using one of these tools, then force-push the cleaned repo:
+```powershell
+# Using git filter-repo (recommended):
+git filter-repo --path node_modules/ --invert-paths
+git push --force
+```
+After pushing, instruct all collaborators to re-clone the repository.
+WARNING: rewriting history changes commit SHAs — communicate this change to collaborators and re-clone the repo afterward.
+
+### Script to check staged files (checks for large files)
+I've added a PowerShell script at `scripts/check-staged-files.ps1` that you can run before committing to detect large files (>1MB) staged accidentally and list staged files.
+
+To run it:
+```powershell
+.\scripts\check-staged-files.ps1
+```
+
+If you want, I can also set up a `pre-commit` or `pre-push` hook that runs the check script automatically.
+
+---

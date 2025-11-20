@@ -1,0 +1,11 @@
+# Auto-normalize line endings across different platforms
+* text=auto
+
+# Scripts - keep POSIX shells as LF and Windows PowerShell as CRLF
+*.sh text eol=lf
+*.ps1 text eol=crlf
+
+# Ignore built artifacts from being treated as text
+dist/* binary
+build/* binary
+node_modules/* binary
